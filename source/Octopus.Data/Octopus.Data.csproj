@@ -5,7 +5,10 @@
     <TargetFramework>netstandard1.0</TargetFramework>
     <AssemblyName>Octopus.Data</AssemblyName>
     <PackageId>Octopus.Data</PackageId>
+    <Authors>Octopus Deploy</Authors>
     <PackageIconUrl>http://i.octopusdeploy.com/resources/Avatar3_360.png</PackageIconUrl>
+    <PackageProjectUrl>https://github.com/OctopusDeploy/Data</PackageProjectUrl>
+    <PackageLicenseUrl>https://github.com/OctopusDeploy/Data/blob/master/LICENSE.txt</PackageLicenseUrl>
     <PackageTargetFallback>$(PackageTargetFallback);dnxcore50</PackageTargetFallback>
     <GenerateAssemblyDescriptionAttribute>false</GenerateAssemblyDescriptionAttribute>
     <GenerateAssemblyCompanyAttribute>false</GenerateAssemblyCompanyAttribute>
