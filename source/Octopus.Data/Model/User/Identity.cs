@@ -70,10 +70,16 @@ namespace Octopus.Data.Model.User
             if (ReferenceEquals(this, other)) return true;
             if (IdentityProviderName != other.IdentityProviderName) return false;
             return Claims.All(kvp =>
-                !kvp.Value.IsIdentifyingClaim ||
-                (other.Claims.ContainsKey(kvp.Key) && (
-                     (string.IsNullOrWhiteSpace(kvp.Value.Value) && string.IsNullOrWhiteSpace(other.Claims[kvp.Key].Value)) ||
-                     kvp.Value.Value.Equals(other.Claims[kvp.Key].Value, StringComparison.OrdinalIgnoreCase))));
+            {
+                if (!kvp.Value.IsIdentifyingClaim)
+                    return true;
+                if (!other.Claims.ContainsKey(kvp.Key))
+                    return false;
+                var existingClaimValue = kvp.Value.Value;
+                var bothClaimsAreNullOrWhitespace = string.IsNullOrWhiteSpace(existingClaimValue) && string.IsNullOrWhiteSpace(other.Claims[kvp.Key].Value);
+                var existingClaimHasValueAndMatches = !string.IsNullOrWhiteSpace(existingClaimValue) && existingClaimValue.Equals(other.Claims[kvp.Key].Value, StringComparison.OrdinalIgnoreCase);
+                return bothClaimsAreNullOrWhitespace || existingClaimHasValueAndMatches;
+            });
         }
 
         public bool Equals(IdentityResource other)
@@ -81,11 +87,16 @@ namespace Octopus.Data.Model.User
             if (ReferenceEquals(null, other)) return false;
             if (IdentityProviderName != other.IdentityProviderName) return false;
             return Claims.All(kvp =>
-                !kvp.Value.IsIdentifyingClaim ||
-                kvp.Value.IsServerSideOnly ||
-                (other.Claims.ContainsKey(kvp.Key) && (
-                     (string.IsNullOrWhiteSpace(kvp.Value.Value) && string.IsNullOrWhiteSpace(other.Claims[kvp.Key].Value)) ||
-                     kvp.Value.Value.Equals(other.Claims[kvp.Key].Value, StringComparison.OrdinalIgnoreCase))));
+            {
+                if (!kvp.Value.IsIdentifyingClaim || kvp.Value.IsServerSideOnly)
+                    return true;
+                if (!other.Claims.ContainsKey(kvp.Key))
+                    return false;
+                var existingClaimValue = kvp.Value.Value;
+                var bothClaimsAreNullOrWhitespace = string.IsNullOrWhiteSpace(existingClaimValue) && string.IsNullOrWhiteSpace(other.Claims[kvp.Key].Value);
+                var existingClaimHasValueAndMatches = !string.IsNullOrWhiteSpace(existingClaimValue) && existingClaimValue.Equals(other.Claims[kvp.Key].Value, StringComparison.OrdinalIgnoreCase);
+                return bothClaimsAreNullOrWhitespace || existingClaimHasValueAndMatches;
+            });
         }
 
         public override bool Equals(object obj)
