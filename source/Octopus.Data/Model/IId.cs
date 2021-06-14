@@ -3,13 +3,11 @@ using Octopus.TinyTypes;
 
 namespace Octopus.Data.Model
 {
-    public interface IId
+    public interface IId : IId<string>
     {
-        string Id { get; }
     }
 
     public interface IId<out TId>
-        where TId : CaseInsensitiveStringTinyType
     {
         TId Id { get; }
     }
