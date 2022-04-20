@@ -1,15 +1,4 @@
 using System;
-using System.Linq;
-using Nuke.Common;
-using Nuke.Common.CI;
-using Nuke.Common.Execution;
-using Nuke.Common.IO;
-using Nuke.Common.ProjectModel;
-using Nuke.Common.Tools.DotNet;
-using Nuke.Common.Utilities.Collections;
-using static Nuke.Common.IO.FileSystemTasks;
-using static Nuke.Common.Tools.DotNet.DotNetTasks;
-using Nuke.Common.Tools.OctoVersion;
 
 [CheckBuildProjectConfigurations]
 [UnsetVisualStudioEnvironmentVariables]
@@ -81,7 +70,7 @@ class Build : NukeBuild
         .Executes(() =>
         {
             Logger.Info("Packing Octopus Data v{0}", OctoVersionInfo.FullSemVer);
-            
+
             // This is done to pass the data to github actions
             Console.Out.WriteLine($"::set-output name=semver::{OctoVersionInfo.FullSemVer}");
             Console.Out.WriteLine($"::set-output name=prerelease_tag::{OctoVersionInfo.PreReleaseTagWithDash}");
@@ -95,7 +84,6 @@ class Build : NukeBuild
                 .DisableIncludeSymbols()
                 .SetVerbosity(DotNetVerbosity.Normal)
                 .SetProperty("NuspecProperties", $"Version={OctoVersionInfo.FullSemVer}"));
-            
         });
 
     Target CopyToLocalPackages => _ => _
@@ -119,7 +107,7 @@ class Build : NukeBuild
                 .NotEmpty()
                 .Select(p => p.ToString());
 
-            System.Console.WriteLine($"::set-output name=packages_to_push::{string.Join(',', artifactPaths)}");
+            Console.WriteLine($"::set-output name=packages_to_push::{string.Join(',', artifactPaths)}");
         });
 
     Target Default => _ => _

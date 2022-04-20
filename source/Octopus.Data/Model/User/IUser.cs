@@ -20,7 +20,7 @@ namespace Octopus.Data.Model.User
         void RevokeSessions(DateTimeOffset validFrom);
         bool ValidateAccessToken(DateTimeOffset tokenIssuedAt);
         bool ValidateRefreshToken(DateTimeOffset tokenIssuedAt);
- 
+
         void SetPassword(string plainTextPassword);
         bool ValidatePassword(string plainTextPassword);
         SecurityGroups GetSecurityGroups(string identityProviderName);
