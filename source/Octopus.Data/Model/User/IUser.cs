@@ -15,7 +15,7 @@ namespace Octopus.Data.Model.User
         bool IsService { get; set; }
         bool IsActive { get; set; }
         
-        DateTimeOffset Created { get; protected set; }
+        DateTimeOffset Created { get; }
 
         HashSet<Identity> Identities { get; }
 
