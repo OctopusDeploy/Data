@@ -20,6 +20,8 @@ namespace Octopus.Data.Model.User
         void RevokeSessions(DateTimeOffset validFrom);
         bool ValidateAccessToken(DateTimeOffset tokenIssuedAt);
         bool ValidateRefreshToken(DateTimeOffset tokenIssuedAt);
+
+        bool ValidateActiveSession(Guid sessionId);
  
         void SetPassword(string plainTextPassword);
         bool ValidatePassword(string plainTextPassword);
