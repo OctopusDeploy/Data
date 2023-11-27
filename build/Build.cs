@@ -1,5 +1,7 @@
 using System;
+using System.IO;
 using System.Linq;
+using System.Text;
 using Nuke.Common;
 using Nuke.Common.CI;
 using Nuke.Common.Execution;
@@ -10,8 +12,8 @@ using Nuke.Common.Utilities.Collections;
 using static Nuke.Common.IO.FileSystemTasks;
 using static Nuke.Common.Tools.DotNet.DotNetTasks;
 using Nuke.Common.Tools.OctoVersion;
+using Serilog;
 
-[CheckBuildProjectConfigurations]
 [UnsetVisualStudioEnvironmentVariables]
 class Build : NukeBuild
 {
@@ -30,9 +32,9 @@ class Build : NukeBuild
     Target Clean => _ => _
         .Executes(() =>
         {
-            SourceDirectory.GlobDirectories("**/bin", "**/obj", "**/TestResults").ForEach(DeleteDirectory);
-            EnsureCleanDirectory(ArtifactsDirectory);
-            EnsureCleanDirectory(PublishDirectory);
+            SourceDirectory.GlobDirectories("**/bin", "**/obj", "**/TestResults").ForEach(d => d.DeleteDirectory());
+            ArtifactsDirectory.CreateOrCleanDirectory();
+            PublishDirectory.CreateOrCleanDirectory();
         });
     
     Target Restore => _ => _
@@ -48,7 +50,7 @@ class Build : NukeBuild
         .DependsOn(Restore)
         .Executes(() =>
         {
-            Logger.Info("Building Octopus Data v{0}", OctoVersionInfo.FullSemVer);
+            Log.Information("Building Octopus Data v{0}", OctoVersionInfo.FullSemVer);
 
             DotNetBuild(_ => _
                 .SetProjectFile(Solution)
@@ -73,12 +75,12 @@ class Build : NukeBuild
         .Produces(ArtifactsDirectory / "*.nupkg")
         .Executes(() =>
         {
-            Logger.Info("Packing Octopus Data v{0}", OctoVersionInfo.FullSemVer);
+            Log.Information("Packing Octopus Data v{0}", OctoVersionInfo.FullSemVer);
             
             // This is done to pass the data to github actions
-            Console.Out.WriteLine($"::set-output name=semver::{OctoVersionInfo.FullSemVer}");
-            Console.Out.WriteLine($"::set-output name=prerelease_tag::{OctoVersionInfo.PreReleaseTagWithDash}");
-
+            GitHubActionsSetOutput("semver", OctoVersionInfo.FullSemVer);
+            GitHubActionsSetOutput("prerelease_tag", OctoVersionInfo.PreReleaseTagWithDash);
+            
             DotNetPack(_ => _
                 .SetProject(Solution)
                 .SetVersion(OctoVersionInfo.FullSemVer)
@@ -88,7 +90,6 @@ class Build : NukeBuild
                 .DisableIncludeSymbols()
                 .SetVerbosity(DotNetVerbosity.Normal)
                 .SetProperty("NuspecProperties", $"Version={OctoVersionInfo.FullSemVer}"));
-            
         });
 
     Target CopyToLocalPackages => _ => _
@@ -96,7 +97,7 @@ class Build : NukeBuild
         .TriggeredBy(Pack)
         .Executes(() =>
         {
-            EnsureExistingDirectory(LocalPackagesDir);
+            LocalPackagesDir.CreateDirectory();
             ArtifactsDirectory.GlobFiles("*.nupkg")
                 .ForEach(package =>
                 {
@@ -108,11 +109,12 @@ class Build : NukeBuild
         .DependsOn(Pack)
         .Executes(() =>
         {
-            var artifactPaths = ArtifactsDirectory.GlobFiles("*.nupkg")
-                .NotEmpty()
-                .Select(p => p.ToString());
+            var nupkgs = ArtifactsDirectory.GlobFiles("*.nupkg");
+            Assert.NotEmpty(nupkgs);
+            
+            var artifactPaths = nupkgs.Select(p => p.ToString());
 
-            System.Console.WriteLine($"::set-output name=packages_to_push::{string.Join(',', artifactPaths)}");
+            GitHubActionsSetOutput("packages_to_push", string.Join(',', artifactPaths));
         });
 
     Target Default => _ => _
@@ -124,4 +126,22 @@ class Build : NukeBuild
     /// - Microsoft VisualStudio     https://nuke.build/visualstudio
     /// - Microsoft VSCode           https://nuke.build/vscode
     public static int Main() => Execute<Build>(x => x.Default);
+
+    static void GitHubActionsSetOutput(string name, string value) => GitHubActionsWriteToEnvFile("GITHUB_OUTPUT", name, value);
+    
+    static void GitHubActionsWriteToEnvFile(string envFile, string name, string value)
+    {
+        if (value.Contains(Environment.NewLine)) throw new ArgumentException("multi-line output not supported yet");
+        
+        var outputEnvFile = Environment.GetEnvironmentVariable(envFile);
+        if (outputEnvFile == null)
+        {
+            Console.WriteLine("{0} env var is not defined: Cannot write env var {1}={2}", envFile, name, value);
+            return;
+        }
+
+        using var fileStream = new FileStream(outputEnvFile, FileMode.Append, FileAccess.ReadWrite, FileShare.ReadWrite | FileShare.Delete);
+        using var writer = new StreamWriter(fileStream, Encoding.UTF8);
+        writer.WriteLine($"{name}={value}");
+    }
 }
