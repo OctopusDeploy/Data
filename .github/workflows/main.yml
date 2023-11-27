@@ -18,12 +18,12 @@ jobs:
   build:
     runs-on: ubuntu-20.04
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v4
         with:
           fetch-depth: 0 # all
 
       - name: Setup .NET
-        uses: actions/setup-dotnet@v1
+        uses: actions/setup-dotnet@v3
         with:
           dotnet-version: 6.0.x
 
@@ -46,7 +46,7 @@ jobs:
         
       - name: GitHub Tag 🏷
         id: github-tag
-        uses: actions/github-script@v3
+        uses: actions/github-script@v7
         if: github.actor != 'dependabot[bot]' && github.actor != 'dependabot-preview[bot]' && github.event_name != 'schedule' && steps.build.outputs.prerelease_tag == ''
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
