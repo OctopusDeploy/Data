@@ -1,46 +1,42 @@
 using System;
-using NUnit.Framework;
+using FluentAssertions;
 using Octopus.Data.Model.User;
+using Xunit;
 
 namespace Tests
 {
     public class IdentityTests
     {
-        [SetUp]
-        public void Setup()
-        {
-        }
-
-        [Test]
+        [Fact]
         public void EqualityCheckWhereIdentifyingAttributeHasChangedWorksWhenExistingIdentityHasIdentifyingTrue()
         {
             var identity1 = CreateIdentity("foo@test.com", true, "foo@test.com", "foo");
             var identity2 = CreateIdentity("foo@test.com", false, "foo@test.com", "foo");
-            Assert.IsTrue(identity1.Equals(identity2));
+            identity1.Should().Be(identity2);
         }
 
-        [Test]
+        [Fact]
         public void EqualityCheckWhereIdentifyingAttributeHasChangedWorksWhenExistingIdentityHasIdentifyingTrueAndNullValue()
         {
             var identity1 = CreateIdentity(null, true, "foo@test.com", "foo");
             var identity2 = CreateIdentity("foo@test.com", false, "foo@test.com", "foo");
-            Assert.IsFalse(identity1.Equals(identity2));
+            identity1.Should().NotBe(identity2);
         }
 
-        [Test]
+        [Fact]
         public void EqualityCheckWhereIdentifyingAttributeHasChangedWorksWhenOtherIdentityHasIdentifyingTrue()
         {
             var identity1 = CreateIdentity("foo@test.com", false, "foo@test.com", "foo");
             var identity2 = CreateIdentity("foo@test.com", true, "foo@test.com", "foo");
-            Assert.IsTrue(identity1.Equals(identity2));
+            identity1.Should().Be(identity2);
         }
 
-        [Test]
+        [Fact]
         public void EqualityCheckWhereIdentifyingAttributeHasChangedWorksWhenOtherIdentityHasIdentifyingTrueAndNullValue()
         {
             var identity1 = CreateIdentity("foo@test.com", false, "foo@test.com", "foo");
             var identity2 = CreateIdentity(null, true, "foo@test.com", "foo");
-            Assert.IsTrue(identity1.Equals(identity2));
+            identity1.Should().Be(identity2);
         }
 
         Identity CreateIdentity(string? email, bool emailIsIdentifying, string upn, string displayName)

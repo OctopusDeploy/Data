@@ -1,68 +1,62 @@
 using System;
-using NUnit.Framework;
+using FluentAssertions;
 using Octopus.Data;
+using Xunit;
 
 namespace Tests
 {
-    [TestFixture]
     public class ResultTests
     {
-        [Test]
+        [Fact]
         public void CheckFailureWithFailureCheck()
         {
             var result = new TestClassWithResultMethod().DoSomething(true);
-            if (result is IFailureResult fail)
-                Assert.AreEqual("Some failure reason", fail.ErrorString);
+            var assertion = result.Should().BeAssignableTo<IFailureResult>();
+            assertion.Subject.ErrorString.Should().Be("Some failure reason");
         }
 
-        [Test]
+        [Fact]
         public void CheckFailureWithSuccessCheck()
         {
             var result = new TestClassWithResultMethod().DoSomething(true);
-            if (result is ISuccessResult<TestObjectBeingReturned> success)
-                Assert.Fail("This result wasn't a success case!");
+            result.Should().NotBeAssignableTo<ISuccessResult<TestObjectBeingReturned>>();
         }
 
-        [Test]
+        [Fact]
         public void CheckSuccessWithSuccessCheck()
         {
             var result = new TestClassWithResultMethod().DoSomething(false);
-            if (result is ISuccessResult<TestObjectBeingReturned> success)
-                Assert.AreEqual("Some Name", success.Value.Name);
+            var assertion = result.Should().BeAssignableTo<ISuccessResult<TestObjectBeingReturned>>();
+            "Some Name".Should().Be(assertion.Subject.Value.Name);
         }
 
-        [Test]
+        [Fact]
         public void CheckSuccessWithFailureCheck()
         {
             var result = new TestClassWithResultMethod().DoSomething(false);
-            if (result is IFailureResult fail)
-                Assert.Fail("This result wasn't a failure case!");
+            result.Should().NotBeAssignableTo<IFailureResult>();
         }
 
-        [Test]
+        [Fact]
         public void CheckSuccessWithNullableType()
         {
             var result = new TestClassWithResultMethod().DoSomething(false);
-            if (result is ISuccessResult<TestObjectBeingReturned?> success)
-                Assert.AreEqual("Some Name", success.Value?.Name);
+            var assertion = result.Should().BeAssignableTo<ISuccessResult<TestObjectBeingReturned>>();
+            "Some Name".Should().Be(assertion.Subject.Value?.Name);
         }
 
-        [Test]
+        [Fact]
         public void CheckSuccessNoObjectWithFailureCheck()
         {
             var result = new TestClassWithResultMethod().DoSomethingWithNoObjectToReturn(false);
-            if (result is IFailureResult fail)
-                Assert.Fail("This result wasn't a failure case!");
+            result.Should().NotBeAssignableTo<IFailureResult>();
         }
 
-        [Test]
+        [Fact]
         public void CheckSuccessNoObjectWithSuccessCheck()
         {
             var result = new TestClassWithResultMethod().DoSomethingWithNoObjectToReturn(false);
-            if (result is ISuccessResult success)
-                Assert.Pass("This was a success");
-            else
-                Assert.Fail("This should have been a success");
+            result.Should().BeAssignableTo<ISuccessResult>();
         }
 
         class TestClassWithResultMethod
