@@ -20,8 +20,8 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Newtonsoft.Json" Version="12.0.3" />
-    <PackageReference Include="Octopus.Server.MessageContracts" Version="0.1.347" />
+    <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
+    <PackageReference Include="Octopus.Server.MessageContracts" Version="3.1.744" />
   </ItemGroup>
 
   <ItemGroup>

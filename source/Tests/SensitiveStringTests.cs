@@ -1,68 +1,68 @@
 using System;
-using NUnit.Framework;
+using FluentAssertions;
 using Octopus.Data.Model;
+using Xunit;
 
 namespace Tests
 {
-    [TestFixture]
     public class SensitiveStringTests
     {
-        [Test]
+        [Fact]
         public void ComparingSensitiveStringPointersAreEqualWorks()
         {
             var a = "Test Value".ToSensitiveString();
             var b = "Test Value".ToSensitiveString();
 
-            Assert.IsTrue(a == b);
+            (a == b).Should().BeTrue("equality operator should return true for identical contents");
         }
 
-        [Test]
+        [Fact]
         public void ComparingSensitiveStringPointersAreNotEqualWorks()
         {
             var a = "Test Value".ToSensitiveString();
             var b = "Test Value2".ToSensitiveString();
 
-            Assert.IsTrue(a != b);
+            (a != b).Should().BeTrue("inequality operator should return true for different contents");
         }
 
-        [Test]
+        [Fact]
         public void ComparingSensitiveStringsToEqualOperatorStringWorks()
         {
             var a = "Test Value".ToSensitiveString();
 
-            Assert.IsTrue(a == "Test Value");
+            (a == "Test Value").Should().BeTrue("equality operator should return true for identical contents");
         }
 
-        [Test]
+        [Fact]
         public void ComparingSensitiveStringsToEqualMethodStringWorks()
         {
             var a = "Test Value".ToSensitiveString();
 
-            Assert.IsTrue(a.Equals("Test Value"));
+            a.Equals("Test Value").Should().BeTrue("equals method should return true for identical contents");
         }
 
-        [Test]
+        [Fact]
         public void ComparingSensitiveStringsToNotEqualStringWorks()
         {
             var a = "Test Value".ToSensitiveString();
 
-            Assert.IsTrue(a != "Test Value2");
+            (a != "Test Value2").Should().BeTrue("inequality operator should return true for different contents");
         }
 
-        [Test]
+        [Fact]
         public void ComparingSensitiveStringsToNullWorks()
         {
             var a = "Test Value".ToSensitiveString();
 
-            Assert.IsFalse(a == null);
+            (a == null).Should().BeFalse("equality operator should return false for a non-null value compared with null");
         }
 
-        [Test]
+        [Fact]
         public void ComparingNullSensitiveStringsToNullWorks()
         {
             SensitiveString? a = null;
 
-            Assert.IsTrue(a == null);
+            (a == null).Should().BeTrue("equality operator should return true for a null value compared with null");
         }
     }
 }
