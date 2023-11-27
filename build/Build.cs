@@ -147,7 +147,7 @@ class Build : NukeBuild
             return;
         }
 
-        using var fileStream = new FileStream(outputEnvFile, FileMode.Append, FileAccess.ReadWrite, FileShare.ReadWrite | FileShare.Delete);
+        using var fileStream = new FileStream(outputEnvFile, FileMode.Append, FileAccess.Write, FileShare.ReadWrite | FileShare.Delete);
         using var writer = new StreamWriter(fileStream, Encoding.UTF8);
         writer.WriteLine($"{name}={value}");
     }
