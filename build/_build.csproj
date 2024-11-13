@@ -8,13 +8,11 @@
     <NukeRootDirectory>..</NukeRootDirectory>
     <NukeScriptDirectory>..</NukeScriptDirectory>
     <NukeTelemetryVersion>1</NukeTelemetryVersion>
-    <!-- NET8: Remove this when Nuke releases a new version which sets it for us -->
-    <EnableUnsafeBinaryFormatterSerialization>true</EnableUnsafeBinaryFormatterSerialization>
   </PropertyGroup>
 
   <ItemGroup>
-	<PackageDownload Include="Octopus.OctoVersion.Tool" Version="[0.3.295]" />
-	<PackageReference Include="Nuke.Common" Version="7.0.6" />
+	<PackageDownload Include="Octopus.OctoVersion.Tool" Version="[1.0.1]" />
+	<PackageReference Include="Nuke.Common" Version="8.1.4" />
   </ItemGroup>
 
 </Project>
