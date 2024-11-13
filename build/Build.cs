@@ -8,11 +8,12 @@ using Nuke.Common.IO;
 using Nuke.Common.ProjectModel;
 using Nuke.Common.Tools.DotNet;
 using Nuke.Common.Utilities.Collections;
-using static Nuke.Common.IO.FileSystemTasks;
-using static Nuke.Common.Tools.DotNet.DotNetTasks;
 using Nuke.Common.Tools.OctoVersion;
 using Serilog;
+using static Nuke.Common.Tools.DotNet.DotNetTasks;
 
+// Nuke likes to use _ for targets; disable the warning.
+// ReSharper disable AllUnderscoreLocalParameterName
 [UnsetVisualStudioEnvironmentVariables]
 class Build : NukeBuild
 {
@@ -95,7 +96,7 @@ class Build : NukeBuild
                 .SetOutputDirectory(ArtifactsDirectory)
                 .EnableNoBuild()
                 .DisableIncludeSymbols()
-                .SetVerbosity(DotNetVerbosity.Normal)
+                .SetVerbosity(DotNetVerbosity.normal)
                 .SetProperty("NuspecProperties", $"Version={OctoVersionInfo.FullSemVer}"));
         });
 
@@ -108,7 +109,7 @@ class Build : NukeBuild
             ArtifactsDirectory.GlobFiles("*.nupkg")
                 .ForEach(package =>
                 {
-                    CopyFileToDirectory(package, LocalPackagesDir);
+                    package.CopyToDirectory(LocalPackagesDir);
                 });
         });
 
